@@ -1,0 +1,166 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: es01
+spec:
+  selector:
+    matchLabels:
+      app: es01
+  template:
+    metadata:
+      labels:
+        app: es01
+    spec:
+      containers:
+      - name: es01
+        image: okteto.dev/es01:latest
+        ports:
+        - containerPort: 9200
+        - containerPort: 9300
+        env:
+        - name: node.name
+          value: "es01"
+        - name: cluster.name
+          value: "okteto-cluster"
+        - name: cluster.initial_master_nodes
+          value: "es01,es02,es03"
+        - name: discovery.seed_hosts
+          value: "es02,es03"
+        - name: bootstrap.memory_lock 
+          value: "false"
+        - name: http.port 
+          value: "9200"
+        - name: xpack.security.enabled 
+          value: "true"
+        - name: xpack.security.http.ssl.enabled 
+          value: "false"
+        - name: xpack.security.transport.ssl.enabled
+          value: "true"
+        - name: xpack.security.transport.ssl.key
+          value: "certs/es01/es01.key"
+        - name: xpack.security.transport.ssl.certificate
+          value: "certs/es01/es01.crt"
+        - name: xpack.security.transport.ssl.certificate_authorities
+          value: "certs/ca/ca.crt"
+        - name: xpack.security.transport.ssl.verification_mode
+          value: "certificate"
+        - name: xpack.license.self_generated.type
+          value: "basic"
+        - name: ELASTIC_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: es-psw
+              key: ELASTIC_PASSWORD
+              optional: false
+
+--- 
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: es02
+spec:
+  selector:
+    matchLabels:
+      app: es02
+  template:
+    metadata:
+      labels:
+        app: es02
+    spec:
+      containers:
+      - name: es02
+        image: okteto.dev/es01:latest
+        ports:
+        - containerPort: 9200
+        - containerPort: 9300
+        env:
+        - name: node.name
+          value: "es02"
+        - name: cluster.name
+          value: "okteto-cluster"
+        - name: cluster.initial_master_nodes
+          value: "es01,es02,es03"
+        - name: discovery.seed_hosts
+          value: "es01,es03"
+        - name: bootstrap.memory_lock 
+          value: "false"
+        - name: http.port 
+          value: "9200"
+        - name: xpack.security.enabled 
+          value: "true"
+        - name: xpack.security.http.ssl.enabled 
+          value: "false"
+        - name: xpack.security.transport.ssl.enabled
+          value: "true"
+        - name: xpack.security.transport.ssl.key
+          value: "certs/es02/es02.key"
+        - name: xpack.security.transport.ssl.certificate
+          value: "certs/es02/es02.crt"
+        - name: xpack.security.transport.ssl.certificate_authorities
+          value: "certs/ca/ca.crt"
+        - name: xpack.security.transport.ssl.verification_mode
+          value: "certificate"
+        - name: xpack.license.self_generated.type
+          value: "basic"
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: es03
+spec:
+  selector:
+    matchLabels:
+      app: es03
+  template:
+    metadata:
+      labels:
+        app: es03
+    spec:
+      containers:
+      - name: es03
+        image: okteto.dev/es01:latest
+        ports:
+        - containerPort: 9200
+        - containerPort: 9300
+        env:
+        - name: node.name
+          value: "es03"
+        - name: cluster.name
+          value: "okteto-cluster"
+        - name: cluster.initial_master_nodes
+          value: "es01,es02,es03"
+        - name: discovery.seed_hosts
+          value: "es01,es02"
+        - name: bootstrap.memory_lock 
+          value: "false"
+        - name: http.port 
+          value: "9200"
+        - name: xpack.security.enabled 
+          value: "true"
+        - name: xpack.security.http.ssl.enabled 
+          value: "false"
+        - name: xpack.security.transport.ssl.enabled
+          value: "true"
+        - name: xpack.security.transport.ssl.key
+          value: "certs/es03/es03.key"
+        - name: xpack.security.transport.ssl.certificate
+          value: "certs/es03/es03.crt"
+        - name: xpack.security.transport.ssl.certificate_authorities
+          value: "certs/ca/ca.crt"
+        - name: xpack.security.transport.ssl.verification_mode
+          value: "certificate"
+        - name: xpack.license.self_generated.type
+          value: "basic"
+
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: es-psw
+type: Opaque
+data:
+  ELASTIC_PASSWORD: Y2hhbmdlbWU= # changeme
