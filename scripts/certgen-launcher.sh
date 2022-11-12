@@ -1,7 +1,7 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 SCRIPT_DIR=${0%/*}
-cd "${SCRIPT_DIR}"
+cd "${SCRIPT_DIR}" || exit
 
 GREEN='\033[0;32m'
 RED='\033[0;31m'
@@ -20,11 +20,9 @@ echo -e "${GREEN}Generating ES certificates...${NC}"
 chmod u+x ./certgen.sh
 docker run --rm -u root \
             --name deploy-es-cert-gen \
-            --mount type=bind,src=$(pwd)/../,dst=/usr/share/elasticsearch/mount/ \
+            --mount type=bind,src="$(pwd)"/../,dst=/usr/share/elasticsearch/mount/ \
             --entrypoint /usr/share/elasticsearch/mount/scripts/certgen.sh \
             docker.elastic.co/elasticsearch/elasticsearch:8.2.2
 
-
 echo -e "${GREEN}Certificate generated:${NC}"
 ls -l ../certs/
-

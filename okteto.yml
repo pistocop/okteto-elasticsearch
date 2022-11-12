@@ -12,7 +12,7 @@ build:
   es01:
     context: .
     dockerfile: Dockerfile
-    image: okteto.dev/es01:latest
+    image: okteto.dev/myes:latest
 
 # The deploy section defines how to deploy your development environment
 # More info: https://www.okteto.com/docs/reference/manifest/#deploy

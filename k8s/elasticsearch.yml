@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
       - name: es01
-        image: okteto.dev/es01:latest
+        image: okteto.dev/myes:latest
         ports:
         - containerPort: 9200
         - containerPort: 9300
@@ -32,18 +32,20 @@ spec:
           value: "9200"
         - name: xpack.security.enabled 
           value: "true"
-        - name: xpack.security.http.ssl.enabled 
+        - name: xpack.security.http.ssl.enabled
           value: "false"
         - name: xpack.security.transport.ssl.enabled
           value: "true"
-        - name: xpack.security.transport.ssl.key
-          value: "certs/es01/es01.key"
-        - name: xpack.security.transport.ssl.certificate
-          value: "certs/es01/es01.crt"
+        - name: xpack.security.http.ssl.keystore.path
+          value: "certs/es01/es01.p12"
+        - name: xpack.security.transport.ssl.keystore.path
+          value: "certs/es01/es01.p12"
         - name: xpack.security.transport.ssl.certificate_authorities
           value: "certs/ca/ca.crt"
         - name: xpack.security.transport.ssl.verification_mode
           value: "certificate"
+        - name: xpack.security.enrollment.enabled
+          value: "true"
         - name: xpack.license.self_generated.type
           value: "basic"
         - name: ELASTIC_PASSWORD
@@ -70,7 +72,7 @@ spec:
     spec:
       containers:
       - name: es02
-        image: okteto.dev/es01:latest
+        image: okteto.dev/myes:latest
         ports:
         - containerPort: 9200
         - containerPort: 9300
@@ -91,16 +93,18 @@ spec:
           value: "true"
         - name: xpack.security.http.ssl.enabled 
           value: "false"
+        - name: xpack.security.http.ssl.keystore.path
+          value: "certs/es02/es02.p12"
         - name: xpack.security.transport.ssl.enabled
           value: "true"
-        - name: xpack.security.transport.ssl.key
-          value: "certs/es02/es02.key"
-        - name: xpack.security.transport.ssl.certificate
-          value: "certs/es02/es02.crt"
+        - name: xpack.security.transport.ssl.keystore.path
+          value: "certs/es02/es02.p12"
         - name: xpack.security.transport.ssl.certificate_authorities
           value: "certs/ca/ca.crt"
         - name: xpack.security.transport.ssl.verification_mode
           value: "certificate"
+        - name: xpack.security.enrollment.enabled
+          value: "true"
         - name: xpack.license.self_generated.type
           value: "basic"
 
@@ -121,7 +125,7 @@ spec:
     spec:
       containers:
       - name: es03
-        image: okteto.dev/es01:latest
+        image: okteto.dev/myes:latest
         ports:
         - containerPort: 9200
         - containerPort: 9300
@@ -142,16 +146,18 @@ spec:
           value: "true"
         - name: xpack.security.http.ssl.enabled 
           value: "false"
+        - name: xpack.security.http.ssl.keystore.path
+          value: "certs/es03/es03.p12"
         - name: xpack.security.transport.ssl.enabled
           value: "true"
-        - name: xpack.security.transport.ssl.key
-          value: "certs/es03/es03.key"
-        - name: xpack.security.transport.ssl.certificate
-          value: "certs/es03/es03.crt"
+        - name: xpack.security.transport.ssl.keystore.path
+          value: "certs/es03/es03.p12"
         - name: xpack.security.transport.ssl.certificate_authorities
           value: "certs/ca/ca.crt"
         - name: xpack.security.transport.ssl.verification_mode
           value: "certificate"
+        - name: xpack.security.enrollment.enabled
+          value: "true"
         - name: xpack.license.self_generated.type
           value: "basic"
 
@@ -163,4 +169,4 @@ metadata:
   name: es-psw
 type: Opaque
 data:
-  ELASTIC_PASSWORD: Y2hhbmdlbWU= # changeme
+  ELASTIC_PASSWORD: Y2hhbmdlbWU= # base64 of "changeme"

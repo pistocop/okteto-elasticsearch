@@ -1,23 +1,23 @@
 # Okteto Elasticsearch
-> Deploy 3 [Elasticsearch](https://github.com/elastic/elasticsearch) nodes on [Okteto Cloud](https://cloud.okteto.com/)
+> Deploy [Elasticsearch 8.x](https://github.com/elastic/elasticsearch) cluster on [Okteto Cloud](https://cloud.okteto.com/)
 
 
 ## ✨ Features
-- Elasticsearch 8.5.0 version
+- Elasticsearch _8.5.0_ version
 - Cluster composed by 3 nodes
-- Deployable on [Okteto Cloud free tier](https://www.okteto.com/pricing/)
-- Protected by [Elasticsearch password](https://www.elastic.co/guide/en/elasticsearch/reference/current/built-in-users.html#bootstrap-elastic-passwords) and [HTTPS connection](https://www.okteto.com/docs/cloud/ssl)
-- [Okteto development environment](https://www.okteto.com/development-environments/) based on `busybox` image
+- Deployable under the [Okteto Cloud free tier](https://www.okteto.com/pricing/)
+- Protected by Elasticsearch [password](https://www.elastic.co/guide/en/elasticsearch/reference/current/built-in-users.html#bootstrap-elastic-passwords), internode [TLS](https://www.elastic.co/guide/en/elasticsearch/reference/master/configuring-tls.html) and [HTTPS connection](https://www.okteto.com/docs/cloud/ssl)
+- Okteto [development environment](https://www.okteto.com/development-environments/) based on [`busybox-curl`](https://hub.docker.com/r/yauritux/busybox-curl) image
 
 
 ## 🚀 Steps
-- Create an [Okteto account](https://www.okteto.com/try-free/) install and configure the [Okteto CLI](https://www.okteto.com/docs/getting-started/)
+- Create an [Okteto account](https://www.okteto.com/try-free/), install and configure the [Okteto CLI](https://www.okteto.com/docs/getting-started/)
 - Clone the [okteto-elasticsearch](https://github.com/pistocop/okteto-elasticsearch) repo
 - Generate the ES certificates:
     - Start Docker and run `$ bash scripts/certgen-launcher.sh`
 - Deploy on Okteto
     - Run `$ okteto deploy --build`
-    - Read from the command output the Endpoints link created and use on the following `curl`
+    - Check the created endpoint from the previous output
 - Call the ES endpoint:
     - Note: if not configured [1], `<your-password>` value is `changeme`
     ```
@@ -31,8 +31,8 @@
     10.8.38.168           11          62  36    1.69    1.41     0.93 cdfhilmrstw -      es03
     ```
 - Enjoy your cluster!
-    - Don't waste free resources, if you don't need the cluster tear down everything with `$ okteto destroy -v`
     - Want to use [Kibana](https://www.elastic.co/kibana/)? see [2]
+    - Don't waste free resources, if you don't need the cluster tear down everything with `$ okteto destroy -v`
 
 
 ## ✍️ Notes
@@ -40,52 +40,43 @@
     - [TLS internode](https://www.elastic.co/guide/en/elasticsearch/reference/master/secure-cluster.html) communication with user-generted certificates
     - [HTTPS endpoint](https://www.okteto.com/docs/cloud/ssl) with Okteto managed certificates
 - Kubernetes
-    - Instead use the GKE ingress, we will use the Okteto provided auto SSL
+    - Instead declaring directly the GKE ingress, we will use the Okteto provided auto SSL
         - Through the `dev.okteto.com/auto-ingress: "true"` annotation
     - We will create one `ClusterIP` for each note for the port `9300`
-        - Because ES use that as default port for intranode communication
+        - Because ES use that as default port for internode communication
 
-### How to
+### 🔧 How to
 - [1] Change the default Elasticsearch password:
     - Generate the base64 new password
         - `$ echo "NEW_PASSWORD" | tr -d \\n | base64 -w 0`
     - Open the the `k8s/elasticsearch.yml` file 
         - Use the generated value to replace the `ELASTIC_PASSWORD` value of the `Secret` component
-- [2] Run Kibana locally [TODO]
+- [2] Run Kibana locally
+    - 🚧 Currently [WIP](https://github.com/pistocop/elastic-certified-engineer/tree/develop/dockerfiles/20_cluster8x-extenalkibana), waiting [this ES issue](https://github.com/elastic/elasticsearch/issues/89017) will be resolved
     - Run kibana locally and connect with Okteto cluster:
-        - We run the docker locally for don't waste the okteto cloud resources
-        - This introduce higher latency but better ES performances
-    ```
-$ curl -X POST -u elastic:changeme "https://es-http-pistocop.cloud.okteto.net/_security/service/elastic/kibana/credential/token/token1?pretty"
-{
-  "created" : true,
-  "token" : {
-    "name" : "token1",
-    "value" : "AAEAAWVsYXN0aWMva2liYW5hL3Rva2VuMTp3Q2F6VE9zSFJ4NllSWjJnelhyLUF3"
-  }
-}
-
-    ```
-
-
+        - We run the docker locally to don't waste the okteto cloud resources
 
 ## ⚒️ Okteto
 
 **Development environment**
-- We could test the intranode connection thanks to [Okteto development environment](https://www.okteto.com/docs/reference/development-environment)
+- We could test the internode network thanks to [Okteto development environment](https://www.okteto.com/docs/reference/development-environment)
     ```
     # Start the busybox-curl pod
     $ okteto up
 
-    # The pod is mounted with all the local files,
-    # including the certificates:
-    > ls certs/
-    ca             es01           es02           es03           instances.yml
+    # The pod is mounted with all the local files, including the certificates:
+    > ls -l /okteto/
+    Dockerfile  README.md   certs       k8s         okteto.yml  scripts
 
-    # The pod is deployed into the cluster
-    # and could test the certificates:
-    [TODO] > curl -u elastic:changeme svc/es01:9200
-    [TODO] > curl -XGET --cacert ./certs/ca/ca.crt -u elastic:changeme svc/es01:9200
+    # The pod is deployed into the cluster and could use the certificates:
+    > curl -u elastic:changeme es-http:9200
+    {
+      "name" : "es01",
+      "cluster_name" : "okteto-cluster",
+    ...
+
+    > nc -vz es01 9300
+    es01 (10.153.19.186:9300) open
     ```
 **Sleeping system**
 -  Q: "How can I restart a sleeping development environment?" - [link](https://www.okteto.com/pricing/?plan=SaaS)
