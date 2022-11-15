@@ -4,7 +4,7 @@
 
 ## ✨ Features
 - Elasticsearch _8.5.0_ version
-- Cluster composed by 3 nodes
+- Cluster composed of 3 nodes
 - Deployable under the [Okteto Cloud free tier](https://www.okteto.com/pricing/)
 - Protected by Elasticsearch [password](https://www.elastic.co/guide/en/elasticsearch/reference/current/built-in-users.html#bootstrap-elastic-passwords), internode [TLS](https://www.elastic.co/guide/en/elasticsearch/reference/master/configuring-tls.html) and [HTTPS connection](https://www.okteto.com/docs/cloud/ssl)
 - Okteto [development environment](https://www.okteto.com/development-environments/) based on [`busybox-curl`](https://hub.docker.com/r/yauritux/busybox-curl) image
@@ -31,19 +31,19 @@
     10.8.38.168           11          62  36    1.69    1.41     0.93 cdfhilmrstw -      es03
     ```
 - Enjoy your cluster!
-    - Want to use [Kibana](https://www.elastic.co/kibana/)? see [2]
+    - Do you want to use [Kibana](https://www.elastic.co/kibana/)? see [2]
     - Don't waste free resources, if you don't need the cluster tear down everything with `$ okteto destroy -v`
 
 
 ## ✍️ Notes
 - Security is provided by:
-    - [TLS internode](https://www.elastic.co/guide/en/elasticsearch/reference/master/secure-cluster.html) communication with user-generted certificates
+    - [TLS internode](https://www.elastic.co/guide/en/elasticsearch/reference/master/secure-cluster.html) communication with user-generated certificates
     - [HTTPS endpoint](https://www.okteto.com/docs/cloud/ssl) with Okteto managed certificates
 - Kubernetes
-    - Instead declaring directly the GKE ingress, we will use the Okteto provided auto SSL
+    - Instead of declaring directly the GKE ingress, we will use the Okteto provided auto SSL
         - Through the `dev.okteto.com/auto-ingress: "true"` annotation
-    - We will create one `ClusterIP` for each note for the port `9300`
-        - Because ES use that as default port for internode communication
+    - We will create one `ClusterIP` for each note for port `9300`
+        - Because ES uses that as the default port for internode communication
 
 ### 🔧 How to
 - [1] Change the default Elasticsearch password:
@@ -101,16 +101,17 @@ $ kubectl get po
 
 
 ## 🛂 Disclaimer
-This repository is build for side-project purposed and no warranties are provided.
+This repository is built for side-project purposes and no warranties are provided.
 Activities to keep in mind before using in production environments includes but are not limited to:
-- We will arbitrary expose the `es01` node as API server:
-    - So we don't have load balancing between the API requestes
-    - There is no guarantee that `es01` isn't choosed as master node
+- We will arbitrarily expose the `es01` node as API server:
+    - So we don't have load balancing between the API requests
+    - There is no guarantee that `es01` isn't chosen as the master node
 - Create a more robust ES architecture with dedicated ES master nodes
-- Fine-tune the ES nodes roles and HW requirements
-- All the point listed on "TODO" section
+- Fine-tune the ES nodes' roles and HW requirements
+- All the points listed in the "TODO" section
 
 
 ## 💤 TODOs
-- [ ] mount data volumes on `/usr/share/elasticsearch/data` to ensure pod's data persistence
-- [ ] avoid to store the ES password into the yaml file
+- [ ] mount data volumes on `/usr/share/elasticsearch/data` to ensure the pods' data persistence
+- [ ] avoid storing the ES password in the yaml file
+- [ ] integrate the [elasticsearch-readonlyrest-plugin](https://github.com/sscarduzio/elasticsearch-readonlyrest-plugin)

@@ -22,7 +22,7 @@ docker run --rm -u root \
             --name deploy-es-cert-gen \
             --mount type=bind,src="$(pwd)"/../,dst=/usr/share/elasticsearch/mount/ \
             --entrypoint /usr/share/elasticsearch/mount/scripts/certgen.sh \
-            docker.elastic.co/elasticsearch/elasticsearch:8.2.2
+            docker.elastic.co/elasticsearch/elasticsearch:8.5.0
 
 echo -e "${GREEN}Certificate generated:${NC}"
 ls -l ../certs/
